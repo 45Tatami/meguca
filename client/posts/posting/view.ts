@@ -19,6 +19,7 @@ let bottomSpacer: HTMLElement
 export default class FormView extends PostView {
     public model: FormModel
     private input: HTMLTextAreaElement
+    private charCounter: HTMLLabelElement
     private observer: MutationObserver
     private previousHeight: number
     public upload: UploadForm
@@ -27,7 +28,18 @@ export default class FormView extends PostView {
     constructor(model: Post) {
         super(model, null)
         this.renderInputs()
+        this.renderCounter()
         this.initDraft()
+    }
+
+    private renderCounter() {
+        this.charCounter = document.createElement("label");
+        setAttrs(this.charCounter, {
+            id: "charCounter"
+        })
+        this.charCounter.innerHTML = "Test123"
+        const header = this.el.querySelector("header");
+        header.append(this.charCounter);
     }
 
     // Render extra input fields for inputting text and optionally uploading
@@ -195,7 +207,14 @@ export default class FormView extends PostView {
             return
         }
         this.resizeInput()
+        this.updateCharacterCount();
         this.model.parseInput(this.input.value)
+    }
+
+    // Updates the Character count
+    public updateCharacterCount() {
+        let length = this.input.value.length;
+        this.charCounter.innerHTML = length + "/" + this.input.maxLength;
     }
 
     // Resize textarea to content width and adjust height
@@ -248,6 +267,13 @@ export default class FormView extends PostView {
         if (pc) {
             pc.remove()
         }
+
+        // Clean up charCounter
+        const charCounter = this.el.querySelector("#charCounter")
+        if (charCounter) {
+            charCounter.remove()
+        }
+
         if (bottomSpacer) {
             bottomSpacer.style.height = ""
             if (atBottom) {
